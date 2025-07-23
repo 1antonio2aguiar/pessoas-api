@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -39,18 +40,17 @@ public class PessoaService {
     public List<DadosPessoaFjReduzidoRcd> pesquisarPorNomeCpfCnpj(String termo) {
 
         // Regra de negócio: não buscar se o termo for muito curto.
-        // Sua implementação no repositório já faz uma verificação, mas é bom ter aqui também.
         if (!StringUtils.hasText(termo) || termo.trim().length() < 3) {
             return Collections.emptyList();
         }
 
-        // Chama o método do repositório que você implementou com Criteria API.
+        // Chama o método do repositório implementado com Criteria API.
         // A lógica de remover caracteres não numéricos e limitar os resultados já está lá.
         List<Pessoa> pessoasEncontradas = pessoaRepository.pesquisarPorNomeCpfCnpj(termo.trim());
 
         // Converte a lista de entidades para uma lista de DTOs
         return pessoasEncontradas.stream()
-                .map(DadosPessoaFjReduzidoRcd::fromPessoa)
+                .map(this::mapToDadosPessoasRcd)
                 .collect(Collectors.toList());
     }
 

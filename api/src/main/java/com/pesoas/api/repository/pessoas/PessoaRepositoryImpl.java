@@ -17,10 +17,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class PessoaRepositoryImpl implements PessoaRepositoryQuery {
     @PersistenceContext
@@ -90,25 +87,20 @@ public class PessoaRepositoryImpl implements PessoaRepositoryQuery {
 
         } else {
             // --- BUSCA APENAS POR NOME (COM A LÓGICA DE UNACCENT) ---
-            System.err.println("Modo de busca: NOME sem acentos com '" + termo + "'");
+            //System.err.println("Modo de busca: NOME sem ACENTOS com '" + termo + "'");
 
-            // Criamos expressões para a função 'unaccent'
-            // 1. Expressão para aplicar unaccent na coluna 'nome'
+            // 1. Aplica f_unaccent e lower na COLUNA do banco de dados.
             Expression<String> nomeSemAcentoDoBanco = builder.function(
-                    "f_unaccent", // Nome da função do PostgreSQL
-                    String.class, // Tipo de retorno da função
-                    builder.lower(root.get(Pessoa_.NOME)) // Argumento: a coluna nome em minúsculas
-            );
-
-            // 2. Expressão para aplicar unaccent no parâmetro 'termo'
-            Expression<String> termoSemAcento = builder.function(
                     "f_unaccent",
                     String.class,
-                    builder.lower(builder.literal("%" + termo + "%")) // Argumento: o termo de busca em minúsculas com wildcards
+                    root.get(Pessoa_.NOME)
             );
 
-            // 3. O predicado agora compara os dois lados já sem acentos
-            predicate = builder.like(nomeSemAcentoDoBanco, termoSemAcento);
+            // 2. Prepara o PARÂMETRO de busca (o termo) em Java, sem acentos e com wildcards.
+            String termoBusca = "%" + org.apache.commons.lang3.StringUtils.stripAccents(termo.toLowerCase()) + "%";
+
+            // 3. O predicado 'like' compara a coluna processada no banco com o parâmetro preparado em Java.
+            predicate = builder.like(builder.lower(nomeSemAcentoDoBanco), termoBusca);
         }
 
         criteria.where(predicate);
@@ -117,7 +109,13 @@ public class PessoaRepositoryImpl implements PessoaRepositoryQuery {
         TypedQuery<Pessoa> query = manager.createQuery(criteria);
         query.setMaxResults(15);
 
-        return query.getResultList();
+        try {
+            // Tenta executar a consulta normalmente.
+            return query.getResultList();
+        } catch (Exception e) {
+            //return new ArrayList<>(); // Ou Collections.emptyList();
+            return Collections.emptyList();
+        }
     }
 
     private Predicate[] criarRestricoes(
