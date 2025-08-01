@@ -11,7 +11,6 @@ import com.pesoas.api.entity.enuns.Situacao;
 import com.pesoas.api.filter.pessoas.PessoaFisicaFilter;
 import com.pesoas.api.repository.PessoaFisicaRepository;
 import com.pesoas.api.repository.TiposPessoasRepository;
-import com.pesoas.api.repository.pessoaFisica.custon.PessoaFisicaCustonRepository;
 import com.pesoas.api.service.exceptions.DatabaseException;
 import com.pesoas.api.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @Service
 public class PessoaFisicaService {
     @Autowired private PessoaFisicaRepository pessoaFisicaRepository;
-    @Autowired private PessoaFisicaCustonRepository pessoaFisicaCustonRepository;
     @Autowired private TiposPessoasRepository tiposPessoasRepository;
 
     public PessoaFisicaService(PessoaFisicaRepository pessoaFisicaRepository) {
@@ -50,17 +49,14 @@ public class PessoaFisicaService {
         return new PageImpl<>(pessoasDTOList, pageable, pessoaPage.getTotalElements());
     }
 
-    public Page<DadosPessoaFisicaReduzRcd> pessoaFisicaNotInEquipes(PessoaFisicaFilter filter, Pageable pageable) {
-        // Recupera somente pessoas que não pertecem a nenhuma equipe.
-        Page<PessoaFisica> pessoaPage = pessoaFisicaCustonRepository.pessoaFisicaNotInEquipes(filter, pageable);
+    // ESTOU TRABALHANDO AQUI >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Este método será executado pela sua PessoaRepositoryImpl original
+    @Transactional(readOnly = true)
+    public Page<DadosPessoaFisicaReduzRcd> buscarComFiltro(PessoaFisicaFilter filter, Pageable pageable) {
 
-        // Mapeia a lista de Pessoas para uma lista de DadosPessoasRcd usando o método de fábrica
-        List<DadosPessoaFisicaReduzRcd> pessoasDTOList = pessoaPage.getContent().stream()
-                .map(DadosPessoaFisicaReduzRcd::fromPessoaFisica)
-                .collect(Collectors.toList());
+        Page<PessoaFisica> paginaDePessoas = pessoaFisicaRepository.filtrar(filter, pageable);
 
-        // Cria um novo Page<DadosPessoasRcd> com os dados mapeados
-        return new PageImpl<>(pessoasDTOList, pageable, pessoaPage.getTotalElements());
+        return paginaDePessoas.map(DadosPessoaFisicaReduzRcd::fromPessoaFisica);
     }
 
     // Pessoa fisica por id

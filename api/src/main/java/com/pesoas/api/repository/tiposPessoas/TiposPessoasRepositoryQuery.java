@@ -11,6 +11,5 @@ import java.util.List;
 @Repository
 public interface TiposPessoasRepositoryQuery {
     public Page<TiposPessoas> filtrar(TiposPessoasFilter tiposPessoasFilter, Pageable pageable);
-
     public List<TiposPessoas> filtrar(TiposPessoasFilter Filter);
 }

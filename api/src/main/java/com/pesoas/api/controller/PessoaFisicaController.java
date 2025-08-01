@@ -1,6 +1,7 @@
 package com.pesoas.api.controller;
 
 import com.pesoas.api.DTO.pessoas.*;
+import com.pesoas.api.DTO.pessoas.fj.DadosListPessoaGeralRcd;
 import com.pesoas.api.filter.pessoas.PessoaFisicaFilter;
 import com.pesoas.api.repository.PessoaFisicaRepository;
 import com.pesoas.api.service.PessoaFisicaService;
@@ -9,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -43,16 +46,15 @@ public class PessoaFisicaController {
         return pessoaFisicaService.pesquisar(filter, pageable);
     }
 
-    /*
-        Este metodo filtra/traz apenas pessoas que não pertencem a nenhuma equipe.
-        ele esta sendo usado na tela de cadastro de atletas, onde um mesmo atleta não pode pertencer a mais de uma equipe.
-     */
-    @GetMapping("/pessoaFisicaNotInEquipes")
-    @Transactional(readOnly = true)
-    public Page<DadosPessoaFisicaReduzRcd> pesquisarByPessoa(PessoaFisicaFilter filter, Pageable pageable) {
-        return pessoaFisicaService.pessoaFisicaNotInEquipes(filter, pageable);
+    // ESTOU TRABALHANDO AQUI >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    @GetMapping("/filtrar")
+    public ResponseEntity<Page<DadosPessoaFisicaReduzRcd>> filtrar(
+            PessoaFisicaFilter filter, // O Spring monta o filter para nós, é mais limpo
+            Pageable pageable
+    ) {
+        Page<DadosPessoaFisicaReduzRcd> paginaDeResultados = pessoaFisicaService.buscarComFiltro(filter, pageable);
+        return ResponseEntity.ok(paginaDeResultados);
     }
-
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<DadosListPessoaFisicaRcd> findById(@PathVariable Long id) {
@@ -61,16 +63,6 @@ public class PessoaFisicaController {
                 ? ResponseEntity.ok(dados)
                 : ResponseEntity.notFound().build();
     }
-
-    /*@GetMapping
-    public ResponseEntity<List<DadosPessoaReduzidoRcd>> findByIds(
-            @RequestParam("ids") Set<Long> ids) { // Recebe os IDs como um Set
-
-        // Chama um método no seu serviço que busca uma lista de pessoas por uma lista de IDs
-        List<DadosPessoaReduzidoRcd> pessoasEncontradas = pessoaService.findByIds(ids);
-
-        return ResponseEntity.ok(pessoasEncontradas);
-    }*/
 
     //Insert
     @PostMapping

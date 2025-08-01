@@ -4,4 +4,5 @@ import lombok.Data;
 public class TiposPessoasFilter {
     private Long id;
     private String nome;
+
 }

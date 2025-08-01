@@ -71,10 +71,19 @@ public class PessoaFisicaRepositoryImpl implements PessoaFisicaRepositoryQuery {
 
         // NOME
         if (StringUtils.hasLength(pessoaFisicaFilter.getNome())) {
+            Expression<String> nomeSemAcentoDoBanco = builder.function(
+                    "f_unaccent",
+                    String.class,
+                    root.get(PessoaFisica_.NOME)
+            );
+
+            String termoBuscaSemAcento = "%" + org.apache.commons.lang3.StringUtils.stripAccents(
+                    pessoaFisicaFilter.getNome().toLowerCase()
+            ) + "%";
+
             predicates.add(
-                    builder.like(
-                            builder.upper(root.get(PessoaFisica_.NOME)),
-                            "%" + pessoaFisicaFilter.getNome().toUpperCase() + "%"));
+                    builder.like(builder.lower(nomeSemAcentoDoBanco), termoBuscaSemAcento)
+            );
         }
 
         // CPF
@@ -86,27 +95,15 @@ public class PessoaFisicaRepositoryImpl implements PessoaFisicaRepositoryQuery {
         }
 
         //DATA NASCIMENTO
+
         if(pessoaFisicaFilter.getDataNascimento() != null){
             // Deve vir do frontEnd no formato MM/dd/yyyy
 
-            Date data = pessoaFisicaFilter.getDataNascimento();
+            LocalDate dataParaBusca = pessoaFisicaFilter.getDataNascimento();
+            Predicate tipoPessoaF = builder.equal(root.type(), PessoaFisica.class);
+            Predicate dataNascMatch = builder.equal(root.get(PessoaFisica_.DATA_NASCIMENTO), dataParaBusca);
+            predicates.add(builder.and(tipoPessoaF, dataNascMatch));
 
-            Date startDate = DateUtils.truncate(data, Calendar.DATE);
-            Date endDate = DateUtils.addSeconds(DateUtils.addDays(startDate, 1), -1);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy"); // Note o formato
-            LocalDate startDateLocalDate = Instant.ofEpochMilli(startDate.getTime())
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            LocalDate endDateLocalDate = Instant.ofEpochMilli(endDate.getTime())
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            endDateLocalDate = startDateLocalDate.plusDays(0);
-
-            System.err.println("Datas " + startDateLocalDate + " " + endDateLocalDate);
-
-            predicates.add(
-                    builder.between(root.get(PessoaFisica_.DATA_NASCIMENTO), startDateLocalDate, endDateLocalDate));
         }
 
         return predicates.toArray(new Predicate[predicates.size()]);

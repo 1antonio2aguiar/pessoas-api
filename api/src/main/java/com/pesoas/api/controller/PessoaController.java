@@ -42,7 +42,6 @@ public class PessoaController {
 
         return ResponseEntity.ok(paginaDeResultados);
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<DadosPessoaFjReduzidoRcd> getById(@PathVariable Long id) {
         DadosPessoaFjReduzidoRcd pessoaDto = pessoaService.findById(id);
