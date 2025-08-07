@@ -20,6 +20,35 @@ import java.util.Set;
 public class PessoaController {
     @Autowired
     private PessoaService pessoaService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosPessoaFjReduzidoRcd> getByIdReduzido(@PathVariable Long id) {
+        DadosPessoaFjReduzidoRcd pessoaDto = pessoaService.findByIdReduzido(id);
+        return ResponseEntity.ok(pessoaDto);
+    }
+
+    // **** NOVO ENDPOINT AQUI ****
+    /**
+     * Busca uma pessoa por ID e retorna o DTO COMPLETO (Geral).
+     * Atende à nova chamada do Feign Client para dados completos.
+     */
+    @GetMapping("/{id}/completo")
+    public ResponseEntity<DadosListPessoaGeralRcd> getByIdCompleto(@PathVariable Long id) {
+        DadosListPessoaGeralRcd pessoaDto = pessoaService.findByIdCompleto(id);
+        return ResponseEntity.ok(pessoaDto);
+    }
+
+    ///////
+
+
+    /*@GetMapping("/{id}")
+    public ResponseEntity<DadosListPessoaGeralRcd> getById(@PathVariable Long id) {
+        DadosListPessoaGeralRcd pessoaDto = pessoaService.findById(id);
+        return ResponseEntity.ok(pessoaDto);
+    }*/
+
+
+
     @GetMapping("/filtrar")
     public ResponseEntity<Page<DadosListPessoaGeralRcd>> filtrarPessoas(
             @RequestParam(required = false) Long id,
@@ -42,11 +71,6 @@ public class PessoaController {
 
         return ResponseEntity.ok(paginaDeResultados);
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<DadosPessoaFjReduzidoRcd> getById(@PathVariable Long id) {
-        DadosPessoaFjReduzidoRcd pessoaDto = pessoaService.findById(id);
-        return ResponseEntity.ok(pessoaDto);
-    }
 
     @GetMapping // Mapeado para GET /pessoaFisica?ids=1,2,3
     public ResponseEntity<List<DadosPessoaFjReduzidoRcd>> getByIds(@RequestParam("ids") Set<Long> ids) {
@@ -54,12 +78,18 @@ public class PessoaController {
         return ResponseEntity.ok(pessoasDtos);
     }
 
-    @GetMapping(params = "termo")
-    public ResponseEntity<List<DadosPessoaFjReduzidoRcd>> pesquisarPessoas(
-            @RequestParam("termo") String termo) {
-
-        List<DadosPessoaFjReduzidoRcd> resultados = pessoaService.pesquisarPorNomeCpfCnpj(termo);
-        return ResponseEntity.ok(resultados);
+    @GetMapping("/pesquisar")
+    public ResponseEntity<?> pesquisarPessoasPorTermo(
+            @RequestParam("termo") String termo,
+            @RequestParam(value = "completo", required = false, defaultValue = "false") boolean completo
+    ) {
+        if (completo) {
+            List<DadosListPessoaGeralRcd> resultados = pessoaService.pesquisarPorNomeCpfCnpjAll(termo);
+            return ResponseEntity.ok(resultados);
+        } else {
+            List<DadosPessoaFjReduzidoRcd> resultados = pessoaService.pesquisarPorNomeCpfCnpj(termo);
+            return ResponseEntity.ok(resultados);
+        }
     }
 
 }

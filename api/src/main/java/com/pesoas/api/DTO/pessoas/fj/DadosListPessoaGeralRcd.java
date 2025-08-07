@@ -12,7 +12,8 @@ public record DadosListPessoaGeralRcd(
         // Campos Comuns (da entidade Pessoa)
         Long id,
         String nome,
-        //String fisicaJuridica, // "F" ou "J"
+        String fisicaJuridica, // "F" ou "J"
+        Integer situacaoId,
         String situacao,       // Descrição do Enum
         Long tipoPessoaId,
         String tipoPessoaNome,
@@ -21,6 +22,7 @@ public record DadosListPessoaGeralRcd(
         // Campos Específicos de Pessoa Física (podem ser null se for Pessoa Jurídica)
         String cpf,
         String sexo,
+        Integer estadoCivilId,
         String estadoCivil,
         LocalDate dataNascimento,
         String nomeMae,
@@ -31,7 +33,8 @@ public record DadosListPessoaGeralRcd(
         String nomeFantasia,
         String objetoSocial,
         String microEmpresa,
-        Integer tipoEmpresa
+        Integer tipoEmpresa,
+        String cpfCnpj
 ) {
     /**
      * Método de fábrica para converter uma entidade Pessoa (que pode ser
@@ -45,11 +48,16 @@ public record DadosListPessoaGeralRcd(
         TiposPessoas tp = pessoa.getTiposPessoas();
         String tipoPessoaNome = (tp != null) ? tp.getNome() : null;
         Long tipoPessoaId = (tp != null) ? tp.getId() : null;
+
+        Integer situacaoId     = pessoa.getSituacao() != null ? pessoa.getSituacao().getCodigo() : null;
         String situacaoDesc = pessoa.getSituacao() != null ? pessoa.getSituacao().getDescricao() : null;
+
+        String fisicaJuridica = null;
 
         // Campos específicos de Pessoa Física
         String cpf = null;
         String sexo = null;
+        Integer estadoCivilId = null;
         String estadoCivil = null;
         LocalDate dataNascimento = null;
         String nomeMae = null;
@@ -61,35 +69,34 @@ public record DadosListPessoaGeralRcd(
         String objetoSocial = null;
         String microEmpresa = null;
         Integer tipoEmpresa = null;
+        String cpfCnpj = null;
 
         // Verifica o tipo real da instância e preenche os campos específicos
         if (pessoa instanceof PessoaFisica pf) { // Usa pattern matching (Java 16+)
+            fisicaJuridica = "F";
             cpf = pf.getCpf();
             sexo = pf.getSexo();
-            estadoCivil = pf.getEstadoCivil() != null ? pf.getEstadoCivil().getDescricao() : null;
+            estadoCivilId = pf.getEstadoCivil() != null ? pf.getEstadoCivil().getCodigo() : null;
+            estadoCivil   = pf.getEstadoCivil() != null ? pf.getEstadoCivil().getDescricao() : null;
             dataNascimento = pf.getDataNascimento();
             nomeMae = pf.getNomeMae();
             nomePai = pf.getNomePai();
+            cpfCnpj = pf.getCpf();
         } else if (pessoa instanceof PessoaJuridica pj) { // Usa pattern matching
+            fisicaJuridica = "J";
             cnpj = pj.getCnpj();
             nomeFantasia = pj.getNomeFantasia();
             objetoSocial = pj.getObjetoSocial();
             microEmpresa = pj.getMicroEmpresa();
             tipoEmpresa = pj.getTipoEmpresa();
+            cpfCnpj = pj.getCnpj();
         }
-        // Para Java < 16, você faria o cast:
-        // if (pessoa instanceof PessoaFisica) {
-        //     PessoaFisica pf = (PessoaFisica) pessoa;
-        //     // ... preenche campos de pf ...
-        // } else if (pessoa instanceof PessoaJuridica) {
-        //     PessoaJuridica pj = (PessoaJuridica) pessoa;
-        //     // ... preenche campos de pj ...
-        // }
 
         return new DadosListPessoaGeralRcd(
                 pessoa.getId(),
                 pessoa.getNome(),
-                //pessoa.getFisicaJuridica(), // O valor 'F' ou 'J' vindo da entidade pai
+                fisicaJuridica,
+                situacaoId,
                 situacaoDesc,
                 tipoPessoaId,
                 tipoPessoaNome,
@@ -97,6 +104,7 @@ public record DadosListPessoaGeralRcd(
                 // Pessoa Física
                 cpf,
                 sexo,
+                estadoCivilId,
                 estadoCivil,
                 dataNascimento,
                 nomeMae,
@@ -106,7 +114,8 @@ public record DadosListPessoaGeralRcd(
                 nomeFantasia,
                 objetoSocial,
                 microEmpresa,
-                tipoEmpresa
+                tipoEmpresa,
+                cpfCnpj
         );
     }
 

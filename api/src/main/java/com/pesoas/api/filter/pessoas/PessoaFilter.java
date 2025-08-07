@@ -10,4 +10,5 @@ public class PessoaFilter {
     private String cpf;
     private String cnpj;
     private Date dataNascimento;
+
 }

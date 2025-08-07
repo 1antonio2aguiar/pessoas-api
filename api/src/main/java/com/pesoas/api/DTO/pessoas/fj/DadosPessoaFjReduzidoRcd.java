@@ -13,7 +13,8 @@ public record DadosPessoaFjReduzidoRcd(
         String fisicaJuridica, // "F" ou "J"
         String cpf,
         LocalDate dataNascimento,
-        String cnpj
+        String cnpj,
+        String cpfCnpj
 ) {
     public static DadosPessoaFjReduzidoRcd fromPessoa(Pessoa pessoa) {
         if (pessoa == null) {
@@ -25,15 +26,18 @@ public record DadosPessoaFjReduzidoRcd(
         String fisicaJuridica = null;
         LocalDate dataNascimento = null;
         String cnpj = null;
+        String cpfCnpj = null;
 
         // Verifica o tipo real da instância e preenche os campos específicos
         if (pessoa instanceof PessoaFisica pf) {
             fisicaJuridica = "F";
             cpf = pf.getCpf();
             dataNascimento = pf.getDataNascimento();
+            cpfCnpj = pf.getCpf();
         } else if (pessoa instanceof PessoaJuridica pj) {
             fisicaJuridica = "J";
             cnpj = pj.getCnpj();
+            cpfCnpj = pj.getCnpj();
         }
 
         return new DadosPessoaFjReduzidoRcd(
@@ -42,7 +46,8 @@ public record DadosPessoaFjReduzidoRcd(
                 fisicaJuridica,
                 cpf,
                 dataNascimento,
-                cnpj
+                cnpj,
+                cpfCnpj
         );
     }
 }
