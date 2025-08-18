@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
@@ -37,17 +38,6 @@ public class PessoaController {
         DadosListPessoaGeralRcd pessoaDto = pessoaService.findByIdCompleto(id);
         return ResponseEntity.ok(pessoaDto);
     }
-
-    ///////
-
-
-    /*@GetMapping("/{id}")
-    public ResponseEntity<DadosListPessoaGeralRcd> getById(@PathVariable Long id) {
-        DadosListPessoaGeralRcd pessoaDto = pessoaService.findById(id);
-        return ResponseEntity.ok(pessoaDto);
-    }*/
-
-
 
     @GetMapping("/filtrar")
     public ResponseEntity<Page<DadosListPessoaGeralRcd>> filtrarPessoas(
@@ -92,6 +82,13 @@ public class PessoaController {
         }
     }
 
+    // DELETAR
+    @Transactional
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity delete(@PathVariable Long id){
+        pessoaService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 
 

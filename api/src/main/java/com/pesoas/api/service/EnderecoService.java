@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class EnderecoService {
     @Autowired private EnderecoRepository enderecoRepository;
     @Autowired private CepRepository cepRepository;
-    @Autowired private PessoaFisicaRepository pessoaFisicaRepository;
+    @Autowired private PessoaRepository pessoaRepository;
     @Autowired private LogradouroRepository logradouroRepository;
     @Autowired private BairroRepository bairroRepository;
 
@@ -59,22 +59,15 @@ public class EnderecoService {
 
     @Transactional(readOnly = true)
     public List<DadosListEnderecoRcd> findEnderecosByPessoaId(Long pessoaId) {
-        // Verificar se a pessoa existe
-        if (!pessoaFisicaRepository.existsById(pessoaId)) {
+        if (!pessoaRepository.existsById(pessoaId)) {
             throw new ObjectNotFoundException("Pessoa com ID " + pessoaId + " não encontrada.");
         }
-        List<Endereco> enderecos = enderecoRepository.findByPessoaFisicaId(pessoaId);
+        // Usa o método corrigido do EnderecoRepository
+        List<Endereco> enderecos = enderecoRepository.findByPessoaId(pessoaId);
         return enderecos.stream()
                 .map(DadosListEnderecoRcd::new)
                 .collect(Collectors.toList());
     }
-
-    /*@Transactional(readOnly = true)
-    public DadosListEnderecoRcd findByCep(String cep) {
-        Endereco enderecoEntidade = enderecoRepository.findByCep(cep)
-                .orElseThrow(() -> new RuntimeException("Cep não encontrado em enderecos: " + cep));
-        return new DadosListEnderecoRcd(enderecoEntidade);
-    }*/
 
     //Insert
     public Endereco insert(DadosInsertEnderecoRcd dados){
@@ -83,9 +76,9 @@ public class EnderecoService {
         BeanUtils.copyProperties(dados, endereco, "id");
 
         //Busco a pessoa
-        PessoaFisica pessoaFisica = pessoaFisicaRepository.findById(dados.pessoaId())
+        Pessoa pessoa = pessoaRepository.findById(dados.pessoaId())
                 .orElseThrow(() -> new ObjectNotFoundException("Pessoa com ID " + dados.pessoaId() + " não encontrada."));
-        endereco.setPessoaFisica(pessoaFisica);
+        endereco.setPessoa(pessoa);
 
         //Busco cep
         Cep cep = cepRepository.findById(dados.cepId())
@@ -152,18 +145,20 @@ public class EnderecoService {
 
     @Transactional
     public void definirEnderecoComoPrincipal(Long pessoaId, Long enderecoId) {
-        int registrosAtualizados = enderecoRepository.marcarTodosComoNaoPrincipalParaPessoa(pessoaId);
+        // A validação da existência da pessoa já está implícita na busca
 
-        Optional<Endereco> enderecoOpt = enderecoRepository.findById(enderecoId);
-        if (enderecoOpt.isPresent()) {
-            Endereco enderecoParaAtualizar = enderecoOpt.get();
-            if (!enderecoParaAtualizar.getPessoaFisica().getId().equals(pessoaId)) { // Ajuste conforme sua entidade
-                throw new IllegalArgumentException("O endereço não pertence à pessoa especificada.");
-            }
-            enderecoParaAtualizar.setPrincipal("S"); // Ou true
-            enderecoRepository.save(enderecoParaAtualizar);
-        }else {
-            throw new ObjectNotFoundException("Endereço com ID " + enderecoId + " não encontrado.");
+        // Esta chamada agora usa a query corrigida que opera em 'pessoa.id'
+        enderecoRepository.marcarTodosComoNaoPrincipalParaPessoa(pessoaId);
+
+        Endereco enderecoParaAtualizar = enderecoRepository.findById(enderecoId)
+                .orElseThrow(() -> new ObjectNotFoundException("Endereço com ID " + enderecoId + " não encontrado."));
+
+        // A validação de posse agora é mais simples e robusta
+        if (!enderecoParaAtualizar.getPessoa().getId().equals(pessoaId)) {
+            throw new IllegalArgumentException("O endereço não pertence à pessoa especificada.");
         }
+
+        enderecoParaAtualizar.setPrincipal("S");
+        enderecoRepository.save(enderecoParaAtualizar);
     }
 }

@@ -74,12 +74,11 @@ public class EnderecoRepositoryImpl implements EnderecoRepositoryQuery {
                     "%" + enderecoFilter.getLogradouro().toLowerCase() + "%"));
         }
 
-        // PESSOA
         if (StringUtils.hasLength(enderecoFilter.getPessoa())) {
             predicates.add(
-                builder.like(
-                    builder.lower(root.get(Endereco_.PESSOA_FISICA).get(PessoaFisica_.NOME)),
-                    "%" + enderecoFilter.getPessoa().toLowerCase() + "%"));
+                    builder.like(
+                            builder.lower(root.get(Endereco_.PESSOA).get(Pessoa_.NOME)), // Caminho corrigido!
+                            "%" + enderecoFilter.getPessoa().toLowerCase() + "%"));
         }
 
         return predicates.toArray(new Predicate[predicates.size()]);

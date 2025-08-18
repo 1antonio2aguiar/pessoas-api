@@ -23,7 +23,7 @@ public record DadosListEnderecoRcd(
 ) {
     public DadosListEnderecoRcd(Endereco endereco) {
         this(endereco.getId(),
-            endereco.getPessoaFisica().getNome(),
+            endereco.getPessoa().getNome(),
             endereco.getTipoEndereco() != null ? endereco.getTipoEndereco().getCodigo() : null,
             endereco.getPrincipal(),
 

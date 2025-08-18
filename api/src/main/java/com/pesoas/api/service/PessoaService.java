@@ -7,8 +7,11 @@ import com.pesoas.api.repository.PessoaRepository;
 import com.pesoas.api.entity.Pessoa;
 import com.pesoas.api.entity.PessoaFisica;
 import com.pesoas.api.entity.PessoaJuridica;
+import com.pesoas.api.service.exceptions.DatabaseException;
 import com.pesoas.api.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -126,5 +129,16 @@ public class PessoaService {
         }
     }
 
-
+    // Delete
+    public void delete(Long id){
+        Pessoa pessoaFisicaDel = pessoaRepository.findById(id)
+                .orElseThrow(() -> new com.pesoas.api.service.exceptions.ObjectNotFoundException("Pessoa não cadastrada. Id: " + id));
+        try {
+            pessoaRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new com.pesoas.api.service.exceptions.ObjectNotFoundException(id);
+        } catch (DataIntegrityViolationException e){
+            throw new DatabaseException(e.getMessage());
+        }
+    }
 }

@@ -14,7 +14,7 @@ public record DadosListContatoRcd(
 ) {
     public DadosListContatoRcd(Contato contato) {
         this(contato.getId(),
-                contato.getPessoaFisica().getNome(),
+                contato.getPessoa().getNome(),
                 contato.getTipoContato() != null ? contato.getTipoContato().getCodigo() : null,
                 contato.getTipoContato() != null ? contato.getTipoContato().getDescricao() : null,
                 contato.getPrincipal(),

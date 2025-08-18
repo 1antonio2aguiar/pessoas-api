@@ -4,11 +4,11 @@ import com.pesoas.api.DTO.documentos.DadosInsertDocumentoRcd;
 import com.pesoas.api.DTO.documentos.DadosListDocumentoRcd;
 import com.pesoas.api.DTO.documentos.DadosUpdateDocumentoRcd;
 import com.pesoas.api.entity.Documento;
-import com.pesoas.api.entity.PessoaFisica;
+import com.pesoas.api.entity.Pessoa;
 import com.pesoas.api.entity.enuns.TipoDocumento;
 import com.pesoas.api.filter.enderecos.DocumentoFilter;
 import com.pesoas.api.repository.DocumentoRepository;
-import com.pesoas.api.repository.PessoaFisicaRepository;
+import com.pesoas.api.repository.PessoaRepository;
 import com.pesoas.api.service.exceptions.DatabaseException;
 import com.pesoas.api.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.BeanUtils;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Service
 public class DocumentoService {
     @Autowired private DocumentoRepository documentoRepository;
-    @Autowired private PessoaFisicaRepository pessoaFisicaRepository;
+    @Autowired private PessoaRepository pessoaRepository;
 
     @Transactional(readOnly = true)
     public Page<DadosListDocumentoRcd> findAllPaginated(Pageable paginacao) {
@@ -57,10 +57,10 @@ public class DocumentoService {
     @Transactional(readOnly = true)
     public List<DadosListDocumentoRcd> findDocumentosByPessoaId(Long pessoaId) {
         // Verificar se a pessoa existe
-        if (!pessoaFisicaRepository.existsById(pessoaId)) {
+        if (!pessoaRepository.existsById(pessoaId)) {
             throw new ObjectNotFoundException("Pessoa com ID " + pessoaId + " não encontrada.");
         }
-        List<Documento> doc = documentoRepository.findByPessoaFisicaId(pessoaId);
+        List<Documento> doc = documentoRepository.findByPessoaId(pessoaId);
         return doc.stream()
             .map(DadosListDocumentoRcd::new)
             .collect(Collectors.toList());
@@ -72,9 +72,9 @@ public class DocumentoService {
         BeanUtils.copyProperties(dados, documento, "id");
 
         //Busco a pessoa
-        PessoaFisica pessoaFisica = pessoaFisicaRepository.findById(dados.pessoaId())
+        Pessoa pessoa = pessoaRepository.findById(dados.pessoaId())
                 .orElseThrow(() -> new ObjectNotFoundException("Pessoa com ID " + dados.pessoaId() + " não encontrada."));
-        documento.setPessoaFisica(pessoaFisica);
+        documento.setPessoa(pessoa);
 
         // set o enum
         documento.setTipoDocumento(TipoDocumento.toTipoDocumentoEnum(dados.tipoDocumento()));

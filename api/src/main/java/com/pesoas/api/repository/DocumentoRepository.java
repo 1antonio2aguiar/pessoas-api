@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DocumentoRepository extends JpaRepository<Documento, Long>, DocumentoRepositoryQuery {
-    List<Documento> findByPessoaFisicaId(Long pessoaId);
+    List<Documento> findByPessoaId(Long pessoaId);
 
 }

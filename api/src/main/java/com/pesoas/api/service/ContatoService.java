@@ -4,7 +4,7 @@ import com.pesoas.api.DTO.contatos.DadosInsertContatoRcd;
 import com.pesoas.api.DTO.contatos.DadosListContatoRcd;
 import com.pesoas.api.DTO.contatos.DadosUpdateContatoRcd;
 import com.pesoas.api.entity.Contato;
-import com.pesoas.api.entity.PessoaFisica;
+import com.pesoas.api.entity.Pessoa;
 import com.pesoas.api.entity.enuns.TipoContato;
 import com.pesoas.api.filter.enderecos.ContatoFilter;
 import com.pesoas.api.repository.*;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Service
 public class ContatoService {
     @Autowired private ContatoRepository contatoRepository;
-    @Autowired private PessoaFisicaRepository pessoaFisicaRepository;
+    @Autowired private PessoaRepository pessoaRepository;
 
     @Transactional(readOnly = true)
     public Page<DadosListContatoRcd> findAllPaginated(Pageable paginacao) {
@@ -58,10 +58,10 @@ public class ContatoService {
     @Transactional(readOnly = true)
     public List<DadosListContatoRcd> findContatosByPessoaId(Long pessoaId) {
         // Verificar se a pessoa existe
-        if (!pessoaFisicaRepository.existsById(pessoaId)) {
+        if (!pessoaRepository.existsById(pessoaId)) {
             throw new ObjectNotFoundException("Pessoa com ID " + pessoaId + " não encontrada.");
         }
-        List<Contato> contatos = contatoRepository.findByPessoaFisicaId(pessoaId);
+        List<Contato> contatos = contatoRepository.findByPessoaId(pessoaId);
         return contatos.stream()
                 .map(DadosListContatoRcd::new)
                 .collect(Collectors.toList());
@@ -73,9 +73,9 @@ public class ContatoService {
         BeanUtils.copyProperties(dados, contato, "id");
 
         //Busco a pessoa
-        PessoaFisica pessoaFisica = pessoaFisicaRepository.findById(dados.pessoaId())
+        Pessoa pessoa = pessoaRepository.findById(dados.pessoaId())
                 .orElseThrow(() -> new ObjectNotFoundException("Pessoa com ID " + dados.pessoaId() + " não encontrada."));
-        contato.setPessoaFisica(pessoaFisica);
+        contato.setPessoa(pessoa);
 
 
         // set o enum
@@ -119,7 +119,7 @@ public class ContatoService {
         Optional<Contato> contatoOpt = contatoRepository.findById(contatoId);
         if (contatoOpt.isPresent()) {
             Contato contatoParaAtualizar = contatoOpt.get();
-            if (!contatoParaAtualizar.getPessoaFisica().getId().equals(pessoaId)) { // Ajuste conforme sua entidade
+            if (!contatoParaAtualizar.getPessoa().getId().equals(pessoaId)) { // Ajuste conforme sua entidade
                 throw new IllegalArgumentException("O contato não pertence à pessoa especificada.");
             }
             contatoParaAtualizar.setPrincipal("S"); // Ou true

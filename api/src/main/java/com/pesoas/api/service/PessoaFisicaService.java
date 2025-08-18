@@ -97,16 +97,4 @@ public class PessoaFisicaService {
         return pessoaFisicaRepository.save(pfUpd);
     }
 
-    // Delete
-    public void delete(Long id){
-        PessoaFisica pessoaFisicaDel = pessoaFisicaRepository.findById(id)
-                .orElseThrow(() -> new com.pesoas.api.service.exceptions.ObjectNotFoundException("Pessoa não cadastrada. Id: " + id));
-        try {
-            pessoaFisicaRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new com.pesoas.api.service.exceptions.ObjectNotFoundException(id);
-        } catch (DataIntegrityViolationException e){
-            throw new DatabaseException(e.getMessage());
-        }
-    }
 }

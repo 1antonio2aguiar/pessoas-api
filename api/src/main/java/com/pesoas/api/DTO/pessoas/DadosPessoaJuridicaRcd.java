@@ -1,11 +1,10 @@
 package com.pesoas.api.DTO.pessoas;
 
-import com.pesoas.api.entity.enuns.Situacao;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record DadosInsertPessoaJuridicaRcd(
+public record DadosPessoaJuridicaRcd(
         // Campos da entidade Pessoa (pai)
         Long id, // Nulo para insert, preenchido para update
 
@@ -17,7 +16,7 @@ public record DadosInsertPessoaJuridicaRcd(
         String observacao,
 
         @NotNull(message = "Situação é obrigatória")
-        Situacao situacao,
+        Integer situacao, // Recebe o Enum Situacao
 
         @NotNull(message = "Tipo de Pessoa é obrigatório")
         Long tipoPessoaId,

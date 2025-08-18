@@ -82,13 +82,6 @@ public class PessoaFisicaController {
         return ResponseEntity.ok().body(DadosListPessoaFisicaRcd.fromPessoaFisica(salva));
     }
 
-    // DELETAR
-    @Transactional
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity delete(@PathVariable Long id){
-        pessoaFisicaService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
 }
 
 

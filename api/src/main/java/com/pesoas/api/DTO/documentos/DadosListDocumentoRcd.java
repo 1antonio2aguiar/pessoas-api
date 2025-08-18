@@ -16,7 +16,7 @@ public record DadosListDocumentoRcd(
 ) {
     public DadosListDocumentoRcd(Documento doc) {
         this(doc.getId(),
-                doc.getPessoaFisica().getNome(),
+                doc.getPessoa().getNome(),
                 doc.getNumeroDocumento(),
                 doc.getTipoDocumento() != null ? doc.getTipoDocumento().getCodigo() : null,
                 doc.getTipoDocumento() != null ? doc.getTipoDocumento().getDescricao() : null,

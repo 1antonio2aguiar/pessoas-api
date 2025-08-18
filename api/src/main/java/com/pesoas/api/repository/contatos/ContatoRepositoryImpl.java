@@ -1,7 +1,6 @@
 package com.pesoas.api.repository.contatos;
 
 import com.pesoas.api.entity.Contato_;
-import com.pesoas.api.entity.PessoaFisica_;
 import com.pesoas.api.filter.enderecos.ContatoFilter;
 import com.pesoas.api.entity.Contato;
 import jakarta.persistence.EntityManager;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +62,12 @@ public class ContatoRepositoryImpl implements ContatoRepositoryQuery {
         }
 
         // PESSOA
-        if (StringUtils.hasLength(contatoFilter.getPessoa())) {
+        /*if (StringUtils.hasLength(contatoFilter.getPessoa())) {
             predicates.add(
                     builder.like(
                             builder.lower(root.get(Contato_.PESSOA_FISICA).get(PessoaFisica_.NOME)),
                             "%" + contatoFilter.getPessoa().toLowerCase() + "%"));
-        }
+        }*/
 
         return predicates.toArray(new Predicate[predicates.size()]);
     }

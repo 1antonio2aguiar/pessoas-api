@@ -25,7 +25,7 @@ public class Endereco implements java.io.Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pessoa_id", nullable = false)
-    private PessoaFisica pessoaFisica;
+    private Pessoa pessoa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cep_id", nullable = false)
