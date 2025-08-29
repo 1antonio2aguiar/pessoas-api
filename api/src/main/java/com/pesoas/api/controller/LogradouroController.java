@@ -2,8 +2,6 @@ package com.pesoas.api.controller;
 
 import com.pesoas.api.DTO.logradouros.DadosListLogradouroRcd;
 import com.pesoas.api.DTO.logradouros.LogradouroPesquisaRcd;
-import com.pesoas.api.filter.enderecos.CidadeFilter;
-import com.pesoas.api.filter.enderecos.DistritoFilter;
 import com.pesoas.api.filter.enderecos.LogradouroFilter;
 import com.pesoas.api.service.LogradouroService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -67,13 +67,6 @@ public class ContatoController {
         }
     }
 
-    // cep por cep
-    /*@GetMapping(value = "/numero/{cep}")
-    public ResponseEntity<DadosListEnderecoRcd> findByCep(@PathVariable String cep) {
-        DadosListEnderecoRcd enderecoRcd = enderecoService.findByCep(cep);
-        return ResponseEntity.ok().body(enderecoRcd);
-    }*/
-
     @PutMapping("/{enderecoId}/definir-como-principal")
     public ResponseEntity<Void> definirComoPrincipal(
             @PathVariable Long contatoId,

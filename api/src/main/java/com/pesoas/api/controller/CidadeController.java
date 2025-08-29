@@ -41,7 +41,6 @@ public class CidadeController {
         DadosListCidadeRcd cidadeDto = cidadeService.findById(id);
         return ResponseEntity.ok().body(cidadeDto);
     }
-
 }
 
 
