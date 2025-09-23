@@ -69,6 +69,8 @@ public class PessoaService {
     @Transactional(readOnly = true)
     public List<DadosPessoaFjReduzidoRcd> pesquisarPorNomeCpfCnpj(String termo) {
         // Chama o método genérico passando a função de mapeamento para o DTO Reduzido
+
+        System.err.println("OLHA ONDE O BACANA VEIO " + termo);
         return pesquisarPorTermoETransformar(termo, DadosPessoaFjReduzidoRcd::fromPessoa);
     }
 
